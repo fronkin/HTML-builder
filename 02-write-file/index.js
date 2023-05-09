@@ -1,43 +1,37 @@
 const fs = require('fs');
 const readline = require('readline');
 const path = require('path');
+
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
 });
-let string = '';
 
-function enterYouString() {
-    rl.question('Введите текст: ', (answer) => {
+fs.access(path.join(__dirname, 'text.txt'), (err) => {
+    if (err) {
+        fs.writeFile(path.join(__dirname, 'text.txt'), '', (err) => {
+            if (err) throw err;
+        });
+    }
+});
+
+function enterYourText() {
+    rl.question('Введите ваш текст: ', (answer) => {
         if (answer === 'exit') {
-            exit();
+            rl.close();
         } else {
-            string += answer + '\n';
-            writeFile(string);
-            enterYouString();
+            fs.appendFile(path.join(__dirname, 'text.txt'), answer + '\n', (err) => {
+                if (err) throw err;
+                enterYourText();
+            });
         }
     });
 }
-function writeFile(string) {
-    fs.appendFile(path.join(__dirname, 'string.txt'), string, (err) => {
-        if (err) {
-            throw err;
-        }
-    });
-}
-
-
 
 function exit() {
-    console.log('\nДо свидания!');
+    console.log('\nВсего хорошего!');
     process.exit();
 }
 
-fs.writeFile(path.join(__dirname, 'string.txt'), string, (err) => {
-    if (err) {
-        throw err;
-    }
-    enterYouString();
-});
-
+enterYourText();
 rl.on('close', exit);
